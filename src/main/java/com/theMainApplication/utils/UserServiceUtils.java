@@ -12,4 +12,11 @@ public class UserServiceUtils {
                 return true;
         return false;
     }
+
+    public static boolean isEmailExist(String userEmail, UserRepository repository){
+        Optional<User> userOptional = repository.findByUserEmailId(userEmail);
+        if(userOptional.isPresent())
+            return true;
+        return false;
+    }
 }

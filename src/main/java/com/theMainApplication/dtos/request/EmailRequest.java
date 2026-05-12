@@ -5,12 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class UserCreationRequest {
+public class EmailRequest {
     private String userName;
-    private String userEmail;
-    private String password;
+    private String emailId;
+    private String emailType;
+    private String emailSubject;
+    private String verificationUrl;
 }

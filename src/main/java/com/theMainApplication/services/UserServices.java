@@ -1,17 +1,22 @@
 package com.theMainApplication.services;
 
 import com.theMainApplication.dtos.UserDto;
+import com.theMainApplication.dtos.request.EmailRequest;
 import com.theMainApplication.dtos.request.UserCreationRequest;
+import com.theMainApplication.dtos.response.EmailServiceResponse;
 import com.theMainApplication.dtos.response.UserServiceOprResponse;
 import com.theMainApplication.entities.User;
+import com.theMainApplication.exceptions.SuppliersOprException.EmailIdAlreadyExist;
 import com.theMainApplication.exceptions.SuppliersOprException.ResourceNotFound;
 import com.theMainApplication.exceptions.SuppliersOprException.UserNameAlreadyExist;
 import com.theMainApplication.exceptions.SuppliersOprException.UserServiceException;
 import com.theMainApplication.mapper.UserModelMapper;
 import com.theMainApplication.repositories.UserRepository;
+import com.theMainApplication.utils.UserServiceUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,9 +25,11 @@ import java.util.Optional;
 @Service
 public class UserServices {
     private final UserRepository repository;
+    private final WebClient webClient;
     private final UserServiceOprResponse response = new UserServiceOprResponse();
-    UserServices(UserRepository repository){
+    UserServices(UserRepository repository, WebClient webClient){
         this.repository = repository;
+        this.webClient = webClient;
     }
 
     public List<UserDto> getAllUsers(){
@@ -36,8 +43,23 @@ public class UserServices {
 
     public UserServiceOprResponse addNewUserV1(UserCreationRequest request){
         try{
+            if(UserServiceUtils.isEmailExist(request.getUserEmail(), repository))
+                throw new EmailIdAlreadyExist("User already exist with email id!...");
             User user = UserModelMapper.mapToUserV1(request);
             User newUser = repository.save(user);
+            EmailRequest emailRequest = new EmailRequest(request.getUserEmail(),
+                    request.getUserName(),
+                    "Registration",
+                    "User Registration Conformation",
+                    "http://localhost:8088/userService/approve");
+
+            webClient.post()
+                .uri("email/sendEmail")
+                .bodyValue(emailRequest)
+                .retrieve()
+                .bodyToMono(EmailServiceResponse.class)
+                .block();
+
             response.setStatusCode(HttpStatus.CREATED.toString())
                     .setIsOprSuccess(true)
                     .setResponseMsg("User has been added successfully with id : "+ user.getUserId() +"!...");
