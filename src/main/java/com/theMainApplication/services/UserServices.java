@@ -3,6 +3,7 @@ package com.theMainApplication.services;
 import com.theMainApplication.dtos.UserDto;
 import com.theMainApplication.dtos.request.EmailRequest;
 import com.theMainApplication.dtos.request.UserCreationRequest;
+import com.theMainApplication.dtos.response.EmailServiceResponse;
 import com.theMainApplication.dtos.response.UserServiceOprResponse;
 import com.theMainApplication.entities.User;
 import com.theMainApplication.exceptions.SuppliersOprException.*;
@@ -12,6 +13,7 @@ import com.theMainApplication.utils.UserServiceUtils;
 import jakarta.transaction.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -50,8 +52,14 @@ public class UserServices {
                     "Registration",
                     "User Registration Conformation",
                     "http://localhost:8088/userService/approve");
-
-
+            ResponseEntity<EmailServiceResponse> emailResponse = WebClientService.callNotificationServiceEmail(
+                    emailRequest, webClient
+            );
+//            if(emailResponse.getStatusCode().is2xxSuccessful()){
+//
+//            } ---> Commented this line of code because if email service is failed in that case the
+            // user creation process will not be considered as failed instead the user will be allowed
+            // to send re-verification code.
 
 //            if(null == emailServiceResponse || null == emailServiceResponse.getEmailStatus() ||
 //                    emailServiceResponse.getEmailStatus().equalsIgnoreCase("true")){
