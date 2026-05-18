@@ -3,16 +3,13 @@ package com.theMainApplication.services;
 import com.theMainApplication.dtos.UserDto;
 import com.theMainApplication.dtos.request.EmailRequest;
 import com.theMainApplication.dtos.request.UserCreationRequest;
-import com.theMainApplication.dtos.response.EmailServiceResponse;
 import com.theMainApplication.dtos.response.UserServiceOprResponse;
 import com.theMainApplication.entities.User;
-import com.theMainApplication.exceptions.SuppliersOprException.EmailIdAlreadyExist;
-import com.theMainApplication.exceptions.SuppliersOprException.ResourceNotFound;
-import com.theMainApplication.exceptions.SuppliersOprException.UserNameAlreadyExist;
-import com.theMainApplication.exceptions.SuppliersOprException.UserServiceException;
+import com.theMainApplication.exceptions.SuppliersOprException.*;
 import com.theMainApplication.mapper.UserModelMapper;
 import com.theMainApplication.repositories.UserRepository;
 import com.theMainApplication.utils.UserServiceUtils;
+import jakarta.transaction.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -41,25 +38,27 @@ public class UserServices {
         return userDtos;
     }
 
+    @Transactional
     public UserServiceOprResponse addNewUserV1(UserCreationRequest request){
         try{
             if(UserServiceUtils.isEmailExist(request.getUserEmail(), repository))
                 throw new EmailIdAlreadyExist("User already exist with email id!...");
             User user = UserModelMapper.mapToUserV1(request);
             User newUser = repository.save(user);
-            EmailRequest emailRequest = new EmailRequest(request.getUserEmail(),
-                    request.getUserName(),
+            EmailRequest emailRequest = new EmailRequest(request.getUserName(),
+                    request.getUserEmail(),
                     "Registration",
                     "User Registration Conformation",
                     "http://localhost:8088/userService/approve");
 
-            webClient.post()
-                .uri("email/sendEmail")
-                .bodyValue(emailRequest)
-                .retrieve()
-                .bodyToMono(EmailServiceResponse.class)
-                .block();
 
+
+//            if(null == emailServiceResponse || null == emailServiceResponse.getEmailStatus() ||
+//                    emailServiceResponse.getEmailStatus().equalsIgnoreCase("true")){
+//
+//                throw new InvalidStatusException((emailServiceResponse.getEmailMessage() == null) ?
+//                "Something went wrong!..": emailServiceResponse.getEmailMessage());
+//            }
             response.setStatusCode(HttpStatus.CREATED.toString())
                     .setIsOprSuccess(true)
                     .setResponseMsg("User has been added successfully with id : "+ user.getUserId() +"!...");

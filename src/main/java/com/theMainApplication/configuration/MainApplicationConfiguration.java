@@ -7,7 +7,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 public class MainApplicationConfiguration {
-    @Value("notificationServiceBaseUrl")
+    @Value("${notificationServiceBaseUrl}")
     private String baseUrl;
     @Bean
     public WebClient getWebClient(){
