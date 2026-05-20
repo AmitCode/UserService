@@ -47,14 +47,14 @@ public class UserServices {
                 throw new EmailIdAlreadyExist("User already exist with email id!...");
             User user = UserModelMapper.mapToUserV1(request);
             User newUser = repository.save(user);
-            EmailRequest emailRequest = new EmailRequest(request.getUserName(),
-                    request.getUserEmail(),
-                    "Registration",
-                    "User Registration Conformation",
-                    "http://localhost:8088/userService/approve");
-            ResponseEntity<EmailServiceResponse> emailResponse = WebClientService.callNotificationServiceEmail(
-                    emailRequest, webClient
-            );
+//            EmailRequest emailRequest = new EmailRequest(request.getUserName(),
+//                    request.getUserEmail(),
+//                    "Registration",
+//                    "User Registration Conformation",
+//                    "http://localhost:8088/userService/approve");
+//            ResponseEntity<EmailServiceResponse> emailResponse = WebClientService.callNotificationServiceEmail(
+//                    emailRequest, webClient
+//            );
 //            if(emailResponse.getStatusCode().is2xxSuccessful()){
 //
 //            } ---> Commented this line of code because if email service is failed in that case the
@@ -69,7 +69,7 @@ public class UserServices {
 //            }
             response.setStatusCode(HttpStatus.CREATED.toString())
                     .setIsOprSuccess(true)
-                    .setResponseMsg("User has been added successfully with id : "+ user.getUserId() +"!...");
+                    .setResponseMsg("User has been added successfully!.");
         }catch (DataIntegrityViolationException exception){
             throw new UserNameAlreadyExist("User already exists!...");
         }
