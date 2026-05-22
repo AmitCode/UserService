@@ -26,9 +26,9 @@ public class User {
     private String userLastName;
     private String userContactNumber;
     private String userEmailId;
-    private String isUserActive;
-    private String isMobileVerified;
-    private String isEmailVerified;
+    private Boolean isUserActive;
+    private Boolean isMobileVerified;
+    private Boolean isEmailVerified;
     private String password;
     private String confirmPassword;
     @CreationTimestamp
@@ -41,9 +41,15 @@ public class User {
     private List<UserAddress> addresses;
 
     public User() {
-        this("Y");
+        this(true, false, false);
     }
-    public User(String isUserActive) {
+    public User(Boolean isUserActive) {
         this.isUserActive = isUserActive;
+    }
+
+    public User(Boolean isUserActive, Boolean isEmailVerified, Boolean isMobileVerified){
+        this.isUserActive = isUserActive;
+        this.isMobileVerified = isMobileVerified;
+        this.isEmailVerified = isEmailVerified;
     }
 }

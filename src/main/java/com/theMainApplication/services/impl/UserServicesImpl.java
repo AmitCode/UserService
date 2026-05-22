@@ -1,14 +1,13 @@
-package com.theMainApplication.services;
+package com.theMainApplication.services.impl;
 
 import com.theMainApplication.dtos.UserDto;
-import com.theMainApplication.dtos.request.EmailRequest;
 import com.theMainApplication.dtos.request.UserCreationRequest;
-import com.theMainApplication.dtos.response.EmailServiceResponse;
 import com.theMainApplication.dtos.response.UserServiceOprResponse;
 import com.theMainApplication.entities.User;
 import com.theMainApplication.exceptions.SuppliersOprException.*;
 import com.theMainApplication.mapper.UserModelMapper;
 import com.theMainApplication.repositories.UserRepository;
+import com.theMainApplication.services.UserService;
 import com.theMainApplication.utils.UserServiceUtils;
 import jakarta.transaction.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,17 +21,17 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserServices {
-    private final UserRepository repository;
+public class UserServicesImpl implements UserService {
+    private final UserRepository userRepository;
     private final WebClient webClient;
-    private final UserServiceOprResponse response = new UserServiceOprResponse();
-    UserServices(UserRepository repository, WebClient webClient){
-        this.repository = repository;
+    private UserServiceOprResponse response;
+    UserServicesImpl(UserRepository userRepository, WebClient webClient){
+        this.userRepository = userRepository;
         this.webClient = webClient;
     }
 
     public List<UserDto> getAllUsers(){
-        List<User> users = repository.findAll();
+        List<User> users = userRepository.findAll();
         List<UserDto> userDtos = new ArrayList<>();
         for(User user : users){
             userDtos.add(UserModelMapper.mapToUserDTO(user));
@@ -40,13 +39,14 @@ public class UserServices {
         return userDtos;
     }
 
+    @Override
     @Transactional
     public UserServiceOprResponse addNewUserV1(UserCreationRequest request){
         try{
-            if(UserServiceUtils.isEmailExist(request.getUserEmail(), repository))
+            if(UserServiceUtils.isEmailExist(request.getUserEmail(), userRepository))
                 throw new EmailIdAlreadyExist("User already exist with email id!...");
             User user = UserModelMapper.mapToUserV1(request);
-            User newUser = repository.save(user);
+            User newUser = userRepository.save(user);
 //            EmailRequest emailRequest = new EmailRequest(request.getUserName(),
 //                    request.getUserEmail(),
 //                    "Registration",
@@ -67,7 +67,8 @@ public class UserServices {
 //                throw new InvalidStatusException((emailServiceResponse.getEmailMessage() == null) ?
 //                "Something went wrong!..": emailServiceResponse.getEmailMessage());
 //            }
-            response.setStatusCode(HttpStatus.CREATED.toString())
+            response = UserServiceOprResponse.createResponse()
+                    .setStatusCode(HttpStatus.CREATED.toString())
                     .setIsOprSuccess(true)
                     .setResponseMsg("User has been added successfully!.");
         }catch (DataIntegrityViolationException exception){
@@ -86,6 +87,8 @@ public class UserServices {
         return response;
     }
 
+    @Override
+    @Transactional
     public UserServiceOprResponse addNewUserV2(UserDto userDto){
 //        Optional<User> userOptional = repository.findByUserName(userDto.getUserName());
 //        if(userOptional.isPresent())
@@ -98,8 +101,10 @@ public class UserServices {
 //                .setResponseMsg("User has been added successfully with id : "+ user.getUserId() +"!...");
         try{
             User user = UserModelMapper.mapToUser(userDto);
-            User newUser = repository.save(user);
-            response.setStatusCode(HttpStatus.CREATED.toString())
+            User newUser = userRepository.save(user);
+
+            response = UserServiceOprResponse.createResponse()
+                    .setStatusCode(HttpStatus.CREATED.toString())
                     .setIsOprSuccess(true)
                     .setResponseMsg("User has been added successfully with id : "+ user.getUserId() +"!...");
         }catch (DataIntegrityViolationException exception){
@@ -108,17 +113,21 @@ public class UserServices {
         return response;
     }
 
+    @Override
+    @Transactional
     public UserServiceOprResponse updateUserDetails(UserDto userDto){
 
         try {
-            Optional<User> userOptional = repository.findByUserName(userDto.getUserName());
+            Optional<User> userOptional = userRepository.findByUserName(userDto.getUserName());
             if(userOptional.isEmpty())
                 throw new ResourceNotFound("User not found!.");
 
             User userToBeUpdated = UserModelMapper.mapToUser(userDto);
             userToBeUpdated.setUserName(userOptional.get().getUserName());
-            repository.save(userToBeUpdated);
-            response.setResponseMsg("User details has been updated successfully!.")
+            userRepository.save(userToBeUpdated);
+
+            response = UserServiceOprResponse.createResponse()
+                    .setResponseMsg("User details has been updated successfully!.")
                     .setStatusCode(HttpStatus.ACCEPTED.toString())
                     .setIsOprSuccess(true);
 
@@ -126,5 +135,60 @@ public class UserServices {
             throw new UserServiceException("Internal Server Error !-> " + exception.getMessage());
         }
         return response;
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<UserServiceOprResponse> deleteUserByUserName(String userName){
+        try{
+            if(UserServiceUtils.isUserExist(userName, userRepository)){
+                userRepository.deleteByUserName(userName);
+            }
+            response = UserServiceOprResponse.createResponse()
+                    .setResponseMsg("User has been deleted successfully!..")
+                    .setStatusCode(HttpStatus.ACCEPTED.toString())
+                    .setIsOprSuccess(true);
+        }catch (RuntimeException runtimeException){
+            throw new UserServiceException(runtimeException.getMessage());
+        }
+        return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<UserServiceOprResponse> activateOrDeactivate(String userName, Boolean isActive) {
+        Optional<User> users = userRepository.findByUserName(userName);
+        if(users.isPresent()){
+            User user = users.get();
+            user.setIsUserActive(isActive);
+            userRepository.deleteByUserName(userName);
+            response = UserServiceOprResponse.createResponse()
+                    .setStatusCode(HttpStatus.ACCEPTED.toString())
+                    .setResponseMsg((isActive) ? "User has been deleted successfully!..."
+                            : "User has been Deactivated!...")
+                    .setIsOprSuccess(true);
+        }else {
+            throw new ResourceNotFound("User does not exists!...");
+        }
+
+        return new ResponseEntity<> (response, HttpStatus.ACCEPTED);
+    }
+
+    public ResponseEntity<UserServiceOprResponse> updateUserProfile(Long userId, UserDto userDetails){
+        try {
+            Optional<User> userOptional = UserServiceUtils.getUserDetailsWithId(userId, userRepository);
+            if(userOptional.isEmpty())
+                throw new ResourceNotFound("User not found!...");
+
+            User user = UserModelMapper.mapToUser(userOptional.get(), userDetails);
+            userRepository.save(user);
+            response  = UserServiceOprResponse.createResponse()
+                    .setResponseMsg("Updated Successfully")
+                    .setStatusCode(HttpStatus.ACCEPTED.toString())
+                    .setIsOprSuccess(true);
+        }catch (Exception exception){
+            throw new UserServiceException(exception.getMessage());
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

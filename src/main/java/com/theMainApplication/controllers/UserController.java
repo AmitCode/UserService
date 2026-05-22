@@ -3,7 +3,7 @@ package com.theMainApplication.controllers;
 import com.theMainApplication.dtos.UserDto;
 import com.theMainApplication.dtos.request.UserCreationRequest;
 import com.theMainApplication.dtos.response.UserServiceOprResponse;
-import com.theMainApplication.services.UserServices;
+import com.theMainApplication.services.impl.UserServicesImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,8 +14,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/usersOpr")
 public class UserController {
-    private final UserServices userServices;
-    UserController(UserServices userServices){
+    private final UserServicesImpl userServices;
+    UserController(UserServicesImpl userServices){
         this.userServices = userServices;
     }
 
@@ -37,6 +37,23 @@ public class UserController {
     @PutMapping("/updateUserDetails")
     public ResponseEntity<UserServiceOprResponse> updateUserDetails(@Valid @RequestBody UserDto userDto){
         return new ResponseEntity<>(userServices.updateUserDetails(userDto), HttpStatus.ACCEPTED);
+    }
+
+    @DeleteMapping("/deleteUser")
+    public ResponseEntity<UserServiceOprResponse> deleteUser(@Valid @RequestHeader String userName){
+        return userServices.deleteUserByUserName(userName);
+    }
+
+    @PatchMapping("/activateOrDeactivateUser")
+    public ResponseEntity<UserServiceOprResponse> modifyUserStatus(@RequestHeader String userName,
+                                                                          @RequestHeader Boolean isActive){
+        return userServices.activateOrDeactivate(userName, isActive);
+    }
+
+    @PutMapping("/{userId}/profile")
+    public ResponseEntity<UserServiceOprResponse> updateUserProfile(@PathVariable Long userId,
+                                                                    @Valid @RequestBody UserDto userDto){
+        return userServices.updateUserProfile(userId, userDto);
     }
 
 }

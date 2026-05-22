@@ -14,6 +14,5 @@ public class WebClientService {
                 .retrieve()
                 .toEntity(EmailServiceResponse.class)
                 .block();
-
     }
 }

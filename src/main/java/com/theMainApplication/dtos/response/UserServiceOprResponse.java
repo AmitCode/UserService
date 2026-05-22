@@ -27,4 +27,8 @@ public class UserServiceOprResponse {
         this.isOprSuccess = isOprSuccess;
         return this;
     }
+
+    public static UserServiceOprResponse createResponse(){
+        return new UserServiceOprResponse();
+    }
 }

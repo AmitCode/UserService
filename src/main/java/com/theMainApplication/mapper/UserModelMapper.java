@@ -104,4 +104,21 @@ public class UserModelMapper {
         }
         return userDTOS;
     }
+
+    public static User mapToUser(User users, UserDto userDTO) {
+        users.setUserFirstName(userDTO.getUserFirstName());
+        users.setUserMiddleName(userDTO.getUserMiddleName());
+        users.setUserLastName(userDTO.getUserLastName());
+        users.setUserContactNumber(userDTO.getUserContactNumber());
+        users.setIsEmailVerified(userDTO.getIsEmailVerified());
+        users.setIsMobileVerified(userDTO.getIsMobileVerified());
+        users.setPassword(userDTO.getUserPassword());
+        users.setConfirmPassword(userDTO.getConfirmPassword());
+        List<UserAddress> addresses = userDTO.getAddresses().stream()
+                .map(AddressModelMapper::mapToAddress)
+                .collect(Collectors.toList());
+        addresses.forEach(address -> address.setUserInfo(users));
+        users.setAddresses(addresses);
+        return users;
+    }
 }
