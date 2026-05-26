@@ -19,6 +19,8 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
+    @Column(unique = true, nullable = false)
+    private Long authUserId;
     @Column(unique = true)
     private String userName;
     private String userFirstName;
@@ -41,7 +43,7 @@ public class User {
     private List<UserAddress> addresses;
 
     public User() {
-        this(true, false, false);
+        this(true, true, false);
     }
     public User(Boolean isUserActive) {
         this.isUserActive = isUserActive;

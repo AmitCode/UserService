@@ -16,6 +16,9 @@ import java.util.List;
 @Getter
 public class UserDto {
     private Long userId;
+    @NotBlank(message = "Auth Service userId can't be blank")
+    private Long authUserId;
+    @NotBlank(message = "User Name can't be blank")
     private String userName;
     @NotBlank(message = "User First Name is required")
     private String userFirstName;

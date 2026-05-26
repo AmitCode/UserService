@@ -15,6 +15,7 @@ public class UserModelMapper {
     public static User mapToUserV1(UserCreationRequest request){
 
         User users = new User();
+        users.setAuthUserId(request.getAuthUserId());
         users.setUserName(request.getUserName());
         users.setPassword(request.getPassword());
         users.setConfirmPassword(request.getPassword());
@@ -45,6 +46,7 @@ public class UserModelMapper {
 
     private static User getUser(UserDto userDTO) {
         User users = new User();
+        users.setAuthUserId(userDTO.getAuthUserId());
         users.setUserName(userDTO.getUserName());
         users.setUserFirstName(userDTO.getUserFirstName());
         users.setUserMiddleName(userDTO.getUserMiddleName());
@@ -68,6 +70,7 @@ public class UserModelMapper {
 
         UserDto userDTO = new UserDto();
         userDTO.setUserId(users.getUserId());
+        userDTO.setAuthUserId(users.getAuthUserId());
         userDTO.setUserName(users.getUserName());
         userDTO.setUserFirstName(users.getUserFirstName());
         userDTO.setUserMiddleName(users.getUserMiddleName());
