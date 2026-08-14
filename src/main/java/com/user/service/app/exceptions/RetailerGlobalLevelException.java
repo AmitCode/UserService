@@ -1,7 +1,6 @@
 package com.user.service.app.exceptions;
 import com.user.service.app.controllers.UserController;
 import com.user.service.app.errorResponse.RetailerExceptionResponse;
-import com.theMainApplication.exceptions.SuppliersOprException.*;
 import com.user.service.app.exceptions.SuppliersOprException.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

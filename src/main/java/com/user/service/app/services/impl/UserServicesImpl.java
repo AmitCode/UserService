@@ -4,7 +4,6 @@ import com.user.service.app.dtos.UserDto;
 import com.user.service.app.dtos.request.UserCreationRequest;
 import com.user.service.app.dtos.response.UserServiceOprResponse;
 import com.user.service.app.entities.User;
-import com.theMainApplication.exceptions.SuppliersOprException.*;
 import com.user.service.app.exceptions.SuppliersOprException.EmailIdAlreadyExist;
 import com.user.service.app.exceptions.SuppliersOprException.ResourceNotFound;
 import com.user.service.app.exceptions.SuppliersOprException.UserNameAlreadyExist;
