@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Setter
 @Getter
-public class UserAddress {
+public class UserAddress extends BaseAuditEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long addressId;
@@ -25,10 +25,6 @@ public class UserAddress {
     private String country;
     private String isPrimaryAddress;
     private String isAddressActive;
-    @CreationTimestamp
-    private LocalDateTime creationDate;
-    @UpdateTimestamp
-    private LocalDateTime lastUpdatedAt;
 
     @ManyToOne
     @JoinColumn(name = "userId")

@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @Setter
 @Getter
-public class User {
+public class User extends BaseAuditEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
@@ -33,12 +33,6 @@ public class User {
     private Boolean isEmailVerified;
     private String password;
     private String confirmPassword;
-    @CreationTimestamp
-    private LocalDateTime createdAt;
-    @CreationTimestamp
-    private LocalDateTime creationDate;
-    @UpdateTimestamp
-    private LocalDateTime lastUpdated;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "userInfo",fetch = FetchType.EAGER)
     private List<UserAddress> addresses;
 
