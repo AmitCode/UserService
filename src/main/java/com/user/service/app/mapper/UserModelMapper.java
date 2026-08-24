@@ -87,7 +87,7 @@ public class UserModelMapper {
                 .map(AddressModelMapper::mapToAddressDTO)
                 .collect(Collectors.toList());
 
-        addresses.forEach(address -> address.setUserInfo(users));
+        addresses.forEach(address -> address.setUserInfo(userDTO));
 
         userDTO.setAddresses(addresses);
 

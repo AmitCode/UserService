@@ -29,7 +29,7 @@ public class UserAddressDto {
     @NotBlank(message = "Please select primary address.")
     private String isPrimaryAddress;
     private String isAddressActive;
-    private User userInfo;
+    private UserDto userInfo;
 
     public UserAddressDto() {
         this("Y");

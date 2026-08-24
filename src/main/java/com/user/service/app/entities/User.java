@@ -1,5 +1,6 @@
 package com.user.service.app.entities;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Setter
 @Getter
+@Schema(hidden = true)
 public class User extends BaseAuditEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
